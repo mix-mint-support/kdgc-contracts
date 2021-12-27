@@ -11,6 +11,8 @@ contract KDGCMinter is Ownable {
     KDGC public nft;
     uint256 public mintPrice = 80 * 1e18;
     address payable public feeTo;
+    uint256 public maxCount = 5;
+    uint256 public limit;
 
     constructor(KDGC _nft, address payable _feeTo) public {
         nft = _nft;
@@ -25,14 +27,16 @@ contract KDGCMinter is Ownable {
         feeTo = _feeTo;
     }
 
-    uint256 public limit;
+    function setMaxCount(uint256 _maxCount) external onlyOwner {
+        maxCount = _maxCount;
+    }
 
     function setLimit(uint256 _limit) external onlyOwner {
         limit = _limit;
     }
 
     function mint(uint256 count) payable external {
-        require(count <= limit);
+        require(count <= limit && count <= maxCount);
         require(msg.value == mintPrice.mul(count));
         uint256 totalSupply = nft.totalSupply();
         nft.massMint(msg.sender, totalSupply + 1, totalSupply + count);
